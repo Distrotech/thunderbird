@@ -1,0 +1,254 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+DEPTH		= @DEPTH@
+topsrcdir	= @top_srcdir@
+srcdir		= @srcdir@
+VPATH		= @srcdir@
+
+include $(DEPTH)/config/autoconf.mk
+
+AB_CD = $(MOZ_UI_LOCALE) 
+
+DEFINES += \
+	-DSEAMONKEY_ICO=\"$(DIST)/branding/seamonkey.ico\" \
+	-DHTML_FILE_ICO=\"$(DIST)/branding/html-file.ico\" \
+	-DAPP_VERSION="$(MOZ_APP_VERSION)" \
+	-DNO_BLOCKLIST_CRASHREPORTER \
+	$(NULL)
+
+ifdef LIBXUL_SDK
+include $(topsrcdir)/config/rules.mk
+else
+# Build a binary bootstrapping with XRE_main
+
+LOCAL_INCLUDES += \
+  -I$(MOZILLA_SRCDIR)/toolkit/xre \
+  -I$(MOZILLA_SRCDIR)/xpcom/base \
+  -I$(MOZILLA_SRCDIR)/xpcom/build \
+  -I$(DEPTH)/mozilla/build \
+  $(NULL)
+
+DEFINES += -DXPCOM_GLUE
+STL_FLAGS=
+
+LIBS += \
+	$(XPCOM_STANDALONE_GLUE_LDOPTS) \
+	$(NULL)
+
+ifndef MOZ_WINCONSOLE
+ifdef MOZ_DEBUG
+MOZ_WINCONSOLE = 1
+else
+MOZ_WINCONSOLE = 0
+endif
+endif
+
+# This switches $(INSTALL) to copy mode, like $(SYSINSTALL), so things that
+# shouldn't get 755 perms need $(IFLAGS1) for either way of calling nsinstall.
+NSDISTMODE = copy
+
+include $(topsrcdir)/config/config.mk
+
+ifdef _MSC_VER
+# Always enter a Windows program through wmain, whether or not we're
+# a console application.
+WIN32_EXE_LDFLAGS += -ENTRY:wmainCRTStartup
+endif
+
+ifeq ($(OS_ARCH),WINNT)
+RCINCLUDE = splash.rc
+# Rebuild seamonkey.exe if the manifest changes - it's included by splash.rc.
+# (this dependency should really be just for seamonkey.exe, not other targets)
+EXTRA_DEPS += $(PROGRAM).manifest
+ifndef GNU_CC
+RCFLAGS += -DMOZ_SUITE -I$(srcdir)
+else
+RCFLAGS += -DMOZ_SUITE --include-dir $(srcdir)
+endif
+ifdef DEBUG
+RCFLAGS += -DDEBUG
+endif
+endif
+
+include $(topsrcdir)/config/rules.mk
+
+ifeq ($(OS_ARCH),WINNT)
+#
+# Control the default heap size.
+# This is the heap returned by GetProcessHeap().
+# As we use the CRT heap, the default size is too large and wastes VM.
+#
+# The default heap size is 1MB on Win32.
+# The heap will grow if need be.
+#
+# Set it to 256k.  See bug 127069.
+#
+ifndef GNU_CC
+LDFLAGS += /HEAP:0x40000
+ifeq ($(OS_TEST),x86_64)
+# set stack to 2MB on x64 build.  See bug 582910
+LDFLAGS += -STACK:2097152
+endif
+endif
+endif
+
+libs::
+ifeq ($(OS_ARCH),WINNT)
+	$(EXIT_ON_ERROR) \
+	$(PERL) -pe 's/(?<!\r)\n/\r\n/g;' < $(topsrcdir)/suite/installer/license.txt > $(DIST)/bin/license.txt
+else
+	$(INSTALL) $(IFLAGS1) $(topsrcdir)/suite/installer/license.txt $(DIST)/bin/
+endif
+
+ifneq ($(OS_ARCH),WINNT)
+
+libs:: 
+	cp -p $(MOZ_APP_NAME)$(BIN_SUFFIX) $(DIST)/bin/$(MOZ_APP_NAME)-bin$(BIN_SUFFIX)
+
+endif
+
+endif # LIBXUL_SDK
+
+libs:: blocklist.xml
+	$(INSTALL) $(IFLAGS1) $^ $(DIST)/bin
+
+ifneq (,$(filter-out WINNT Darwin,$(OS_ARCH)))
+$(MOZ_APP_NAME).1: seamonkey.man.in $(GLOBAL_DEPS) $(DEPTH)/config/autoconf.mk
+	@sed -e "s|\@bindir\@|$(bindir)|g" -e "s|\@mozappdir\@|$(mozappdir)|g" \
+		-e "s|\@MOZ_APP_DISPLAYNAME\@|$(MOZ_APP_DISPLAYNAME)|g" \
+		-e "s|\@MOZ_APP_NAME\@|$(MOZ_APP_NAME)|g" \
+		-e "s|\@MOZ_APP_VERSION\@|${MOZ_APP_VERSION}|g" < $< > $@
+
+libs:: $(MOZ_APP_NAME).1
+	$(INSTALL) $< $(DIST)/man/man1
+
+install:: $(MOZ_APP_NAME).1
+	$(SYSINSTALL) $(IFLAGS1) $< $(DESTDIR)$(mandir)/man1
+
+GARBAGE += $(MOZ_APP_NAME).1
+GARBAGE += $(addprefix $(DIST)/bin/defaults/pref/, browser-prefs.js)
+endif
+
+ifdef MOZ_OMNIJAR
+# Make extensions end up as XPIs instead of flat chrome when doing omni.jar.
+# APP_EXTENSIONS exist only bundled with the application,
+# PROFILE_EXTENSIONS will be copied to the profile in installed builds.
+# NOTE: This is a hack to run this at the end of compilation, would be nicer
+# if this was done right away for built-in extensions in omnijar mode.
+# Listed extension GUIDs:
+# 972ce4c6-... Classic Theme, 59c81df5-... ChatZilla, f13b157f-... Venkman
+APP_EXTENSIONS = \
+  {972ce4c6-7e08-4474-a285-3208198ce6fd} \
+  modern@themes.mozilla.org \
+  $(NULL)
+
+PROFILE_EXTENSIONS = \
+  debugQA@mozilla.org \
+  {59c81df5-4b7a-477b-912d-4e0fdf64e5f2} \
+  {f13b157f-b174-47e7-a34d-4815ddfdfeb8} \
+  inspector@mozilla.org \
+  $(NULL)
+
+ifneq (en-US, $(AB_CD))
+PROFILE_EXTENSIONS += \
+  langpack-$(AB_CD)@chatzilla.mozilla.org \
+  langpack-$(AB_CD)@venkman.mozilla.org \
+  $(NULL)
+endif
+
+ABS_DIST = $(abspath $(STAGEDIST))
+
+define _PACKAGE_APP_EXTENSIONS
+@echo "Packaging $(dir).xpi..."
+if test -d "$(ABS_DIST)/extensions/$(dir)"; then \
+cd $(ABS_DIST)/extensions/$(dir)/; \
+$(ZIP) -r9mX ../$(dir).xpi *; \
+cd ..; rm -rf $(ABS_DIST)/extensions/$(dir); \
+fi
+
+endef # do not remove the blank line!
+
+define _PACKAGE_PROFILE_EXTENSIONS
+@echo "Packaging $(dir).xpi..."
+if test -d "$(ABS_DIST)/extensions/$(dir)"; then \
+cd $(ABS_DIST)/extensions/$(dir)/; \
+$(ZIP) -r9mX ../../distribution/extensions/$(dir).xpi *; \
+cd ..; rm -rf $(ABS_DIST)/extensions/$(dir); \
+fi
+
+endef # do not remove the blank line!
+
+pack-ext: $(STAGEDIST)
+	@echo "Packaging extensions..."
+	$(NSINSTALL) -D $(STAGEDIST)/distribution/extensions;
+	$(foreach dir,$(APP_EXTENSIONS),$(_PACKAGE_APP_EXTENSIONS))
+	$(foreach dir,$(PROFILE_EXTENSIONS),$(_PACKAGE_PROFILE_EXTENSIONS))
+
+tools::
+	@$(MAKE) pack-ext STAGEDIST="$(DIST)/bin"
+
+endif
+
+ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
+# Anything below the above ifdef won't be included in mac builds. So be very
+# careful what you add here.
+
+MAC_APP_NAME = $(MOZ_APP_DISPLAYNAME)
+
+ifdef MOZ_DEBUG
+MAC_APP_NAME := $(MAC_APP_NAME)Debug
+endif
+
+LOWER_MAC_APP_NAME = $(shell echo $(MAC_APP_NAME) | tr '[A-Z]' '[a-z]')
+
+AB := $(firstword $(subst -, ,$(AB_CD)))
+
+clean clobber repackage::
+	$(RM) -r $(DIST)/$(MOZ_MACBUNDLE_NAME)
+
+ifdef LIBXUL_SDK
+APPFILES = Resources
+else
+APPFILES = MacOS
+endif
+
+tools:: $(PROGRAM)
+	mkdir -p $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/MacOS
+	rsync -a --exclude CVS --exclude "*.in" $(srcdir)/macbuild/Contents $(DIST)/$(MOZ_MACBUNDLE_NAME) --exclude English.lproj
+	mkdir -p $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/Resources/$(AB).lproj
+	rsync -a --exclude CVS --exclude "*.in" $(srcdir)/macbuild/Contents/Resources/English.lproj/ $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/Resources/$(AB).lproj
+	sed -e "s/\@MOZ_APP_NAME\@/$(MOZ_APP_NAME)/" -e "s/\@MAC_APP_NAME\@/$(MAC_APP_NAME)/" -e "s/\@MOZ_APP_DISPLAYNAME\@/$(MOZ_APP_DISPLAYNAME)/" -e "s/\@MOZ_APP_VERSION\@/$(MOZ_APP_VERSION)/" $(srcdir)/macbuild/Contents/Info.plist.in > $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/Info.plist
+	sed -e "s/\@MOZ_APP_NAME\@/$(MOZ_APP_NAME)/" -e "s/\@MAC_APP_NAME\@/$(MAC_APP_NAME)/" -e "s/\@MOZ_APP_DISPLAYNAME\@/$(MOZ_APP_DISPLAYNAME)/" -e "s/\@MOZ_APP_VERSION\@/$(MOZ_APP_VERSION)/" $(srcdir)/macbuild/Contents/Resources/English.lproj/InfoPlist.strings.in | iconv -f UTF-8 -t UTF-16 > $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/Resources/$(AB).lproj/InfoPlist.strings
+	rsync -a $(DIST)/bin/ $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/$(APPFILES)
+	rm -f $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/$(APPFILES)/mangle $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/$(APPFILES)/shlibsign
+ifdef LIBXUL_SDK
+	cp $(LIBXUL_DIST)/bin/$(XR_STUB_NAME) $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/MacOS/seamonkey
+else
+	rm -f $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/MacOS/$(PROGRAM)
+	rsync -aL $(PROGRAM) $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/MacOS
+endif
+	-cp -L $(DIST)/bin/mangle $(DIST)/bin/shlibsign $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/$(APPFILES)
+	cp -RL $(DIST)/branding/icons/*.icns $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/Resources/
+	printf APPLMOZZ > $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/PkgInfo
+#       remove CVS dirs from packaged app
+	find $(DIST)/$(MOZ_MACBUNDLE_NAME) -type d -name "CVS" -prune -exec rm -rf {} \;
+else
+ifdef LIBXUL_SDK
+libs::
+	cp $(LIBXUL_DIST)/bin/$(XULRUNNER_STUB_NAME)$(BIN_SUFFIX) $(DIST)/bin/seamonkey$(BIN_SUFFIX)
+endif
+endif
+
+ifdef LIBXUL_SDK
+ifndef SKIP_COPY_XULRUNNER
+libs::
+ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
+	rsync -a --copy-unsafe-links $(LIBXUL_DIST)/XUL.framework $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/Frameworks
+else
+	$(NSINSTALL) -D $(DIST)/bin/xulrunner
+	(cd $(LIBXUL_SDK)/bin && tar $(TAR_CREATE_FLAGS) - .) | (cd $(DIST)/bin/xulrunner && tar -xf -)
+endif # cocoa
+endif # SKIP_COPY_XULRUNNER
+endif # LIBXUL_SDK

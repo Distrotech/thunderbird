@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://messenger/skin/prefPanels.css" type="text/css"?>
+
+<!DOCTYPE overlay SYSTEM "chrome://messenger/locale/pref-character_encoding.dtd">
+
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <prefpane id="character_encoding_pane"
+            label="&pref.character.encoding.title;"
+            script="chrome://messenger/content/pref-character_encoding.js">
+    <preferences id="character_encoding_preferences">
+      <preference id="mailnews.view_default_charset"
+                  name="mailnews.view_default_charset"
+                  type="wstring"/>
+      <preference id="mail.strictly_mime"
+                  name="mail.strictly_mime"
+                  type="bool"/>
+      <preference id="mailnews.send_default_charset"
+                  name="mailnews.send_default_charset"
+                  type="wstring"/>
+      <preference id="mailnews.reply_in_default_charset"
+                  name="mailnews.reply_in_default_charset"
+                  type="bool"/>
+    </preferences>
+
+    <groupbox align="start">
+      <caption label="&messageDisplay.caption;"/>
+      <hbox align="center">
+        <label control="viewDefaultCharsetList"
+               value="&viewFallbackCharset.label;"
+               accesskey="&viewFallbackCharset.accesskey;"/>
+        <menulist id="viewDefaultCharsetList"
+                  ref=""
+                  datasources="rdf:charset-menu"
+                  preference="mailnews.view_default_charset">
+          <template>
+            <menupopup>
+              <menuitem label="rdf:http://home.netscape.com/NC-rdf#Name"
+                        value="..."
+                        uri="..."/>
+            </menupopup>
+          </template>
+        </menulist>
+      </hbox>
+      <description>&viewFallbackCharset.desc;</description>
+    </groupbox>
+
+    <!-- Composing Mail -->
+    <groupbox align="start">
+      <caption label="&composingMessages.caption;"/>
+
+      <checkbox id="strictlyMime"
+                label="&useMIME.label;"
+                accesskey="&useMIME.accesskey;"
+                preference="mail.strictly_mime"/>
+
+      <hbox align="center">
+        <label value="&sendDefaultCharset.label;"
+               accesskey="&sendDefaultCharset.accesskey;"
+               control="sendDefaultCharsetList"/>
+        <menulist id="sendDefaultCharsetList"
+                  ref=""
+                  datasources="rdf:charset-menu"
+                  preference="mailnews.send_default_charset">
+          <template>
+            <menupopup>
+              <menuitem label="rdf:http://home.netscape.com/NC-rdf#Name"
+                        value="..."
+                        uri="..."/>
+            </menupopup>
+          </template>
+        </menulist>  
+      </hbox>
+      <checkbox id="replyInDefaultCharset"
+                label="&replyInDefaultCharset2.label;"
+                accesskey="&replyInDefaultCharset2.accesskey;"
+                preference="mailnews.reply_in_default_charset"/>
+    </groupbox>
+  </prefpane>
+</overlay>

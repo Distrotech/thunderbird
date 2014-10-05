@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE overlay [
+<!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
+%brandDTD;
+<!ENTITY % prefSecurityDTD SYSTEM "chrome://communicator/locale/pref/pref-security.dtd">
+%prefSecurityDTD;
+]>
+
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <prefpane id="security_pane" label="&pref.security.title;"
+            script="chrome://communicator/content/pref/pref-security.js">
+    <preferences id="security_preferences">
+      <!-- Do Not Track -->
+      <preference id="privacy.donottrackheader.enabled"
+                  name="privacy.donottrackheader.enabled"
+                  onchange="SetDntValueEnabled(this.value);"
+                  type="bool"/>
+      <preference id="privacy.donottrackheader.value"
+                  name="privacy.donottrackheader.value"
+                  type="int"/>
+
+      <!-- Safe Browsing -->
+      <preference id="browser.safebrowsing.malware.enabled"
+                  name="browser.safebrowsing.malware.enabled"
+                  type="bool"/>
+      <preference id="browser.safebrowsing.enabled"
+                  name="browser.safebrowsing.enabled"
+                  type="bool"/>
+    </preferences>
+
+    <!-- Do Not Track -->
+    <groupbox id="doNotTrackGroup">
+      <caption label="&tracking.label;"/>
+
+      <description>&trackingIntro.label;</description>
+      <checkbox id="dntTellSites"
+                label="&dntTellSites.label;"
+                accesskey="&dntTellSites.accesskey;"
+                preference="privacy.donottrackheader.enabled"/>
+      <radiogroup id="dntSelection" orient="vertical" class="indent"
+                  preference="privacy.donottrackheader.value">
+        <radio id="dntNoTrack" value="1" label="&dntTrackingNotOkay.label;"
+               accesskey="&dntTrackingNotOkay.accesskey;"/>
+        <radio id="dntDoTrack" value="0" label="&dntTrackingOkay.label;"
+               accesskey="&dntTrackingOkay.accesskey;"/>
+      </radiogroup>
+    </groupbox>
+
+    <!-- Safe Browsing -->
+    <groupbox id="safeBrowsingGroup">
+      <caption label="&safeBrowsing.label;"/>
+
+      <description>&safeBrowsingIntro.label;</description>
+      <checkbox id="blockAttackSites"
+                label="&blockAttackSites.label;"
+                accesskey="&blockAttackSites.accesskey;"
+                preference="browser.safebrowsing.malware.enabled"/>
+      <checkbox id="blockWebForgeries"
+                label="&blockWebForgeries.label;"
+                accesskey="&blockWebForgeries.accesskey;"
+                preference="browser.safebrowsing.enabled"/>
+    </groupbox>
+  </prefpane>
+</overlay>

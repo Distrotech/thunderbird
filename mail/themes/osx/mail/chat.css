@@ -1,0 +1,312 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+%include ../../../components/im/themes/chat.css
+
+#statusTypeIcon:-moz-locale-dir(ltr) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+#statusTypeIcon:-moz-locale-dir(rtl) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+#statusTypeIcon > .toolbarbutton-text {
+  display: none;
+}
+
+.statusMessageToolbarItem {
+  height: 22px;
+  -moz-margin-start: -3px;
+  margin-bottom: 2px;
+  padding-bottom: 3px;
+}
+
+#chat-status-selector:hover > .statusMessageToolbarItem,
+#chat-status-selector > .statusMessageToolbarItem[editing],
+.statusMessageToolbarItem:focus {
+  border-color: #AAAAAA;
+  box-shadow: 0px 1px 0px rgba(255, 255, 255, 0.5),
+              0px 1px 0px rgba(255, 255, 255, 0.5) inset;
+}
+
+#chat-status-selector > .statusMessageToolbarItem[editing] {
+  border-color: #888888;
+}
+
+/* Adaptation of #folderpane_splitter */
+#listSplitter {
+  background-image: none;
+  width: 3px;
+  min-width: 3px;
+}
+
+#contextSplitter {
+  border: none;
+  -moz-border-end: 1px solid #8B8B8B;
+  background: none;
+  min-width: 0;
+  /* splitter grip area */
+  width: 5px;
+  /* make only the splitter border visible */
+  -moz-margin-start: -4px;
+  /* because of the negative margin needed to make the splitter visible */
+  position: relative;
+  z-index: 10;
+}
+
+/* Adaptation of #folderPaneBox/#folderPaneTree from osx/mail/mailWindow1.css */
+#listPaneBox {
+  border-right: 1px solid #8B8B8B;
+  -moz-margin-end: -3px !important;
+  background-color: #DEE4EA !important;
+}
+
+#listPaneBox:-moz-window-inactive {
+  background-color: #E8E8E8 !important;
+}
+
+#listPaneBox > * {
+  background: transparent !important;
+  -moz-appearance: none !important;
+  border: none;
+}
+
+/* Set a background color to avoid lightweight theme backgrounds */
+#contextPane {
+  background-color: #FFFFFF;
+}
+
+/* Adaptation of #searchInput from osx/mail/searchBox.css */
+/* it looks like appearance: searchfield gets us our search icon... */
+#IMSearchInput {
+  margin: 3px 4px 4px !important;
+  -moz-appearance: searchfield;
+  font: icon;
+  height: 22px !important;
+}
+
+#IMSearchInput > .textbox-input-box {
+  border: none;
+  padding-top: 1px;
+  height: 21px !important;
+  margin: 0 !important;
+}
+
+#IMSearchInput:-moz-lwtheme:not([focused="true"]) {
+  opacity: .9;
+}
+
+#button-add-buddy {
+  list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.png");
+  -moz-image-region: rect(0px 18px 18px 0px);
+}
+
+#button-add-buddy:not([disabled="true"]):active {
+  -moz-image-region: rect(18px 18px 36px 0px);
+}
+
+@media (min-resolution: 2dppx) {
+  #button-add-buddy {
+    list-style-image: url("chrome://messenger/skin/icons/chat-toolbar@2x.png");
+    -moz-image-region: rect(0px 36px 36px 0px);
+  }
+
+  #button-add-buddy:not([disabled="true"]):active {
+    -moz-image-region: rect(36px 36px 72px 0px);
+  }
+}
+
+#button-join-chat {
+  list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.png");
+  -moz-image-region: rect(0px 36px 18px 18px);
+}
+
+#button-join-chat:not([disabled="true"]):active {
+  -moz-image-region: rect(18px 36px 36px 18px);
+}
+
+@media (min-resolution: 2dppx) {
+  #button-join-chat {
+    list-style-image: url("chrome://messenger/skin/icons/chat-toolbar@2x.png");
+    -moz-image-region: rect(0px 72px 36px 36px);
+  }
+
+  #button-join-chat:not([disabled="true"]):active {
+    -moz-image-region: rect(36px 72px 72px 36px);
+  }
+}
+
+#button-chat-accounts {
+  list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.png");
+  -moz-image-region: rect(0px 54px 18px 36px);
+}
+
+#button-chat-accounts:not([disabled="true"]):active {
+  -moz-image-region: rect(18px 54px 36px 36px);
+}
+
+@media (min-resolution: 2dppx) {
+  #button-chat-accounts {
+    list-style-image: url("chrome://messenger/skin/icons/chat-toolbar@2x.png");
+    -moz-image-region: rect(0px 108px 36px 72px);
+  }
+
+  #button-chat-accounts:not([disabled="true"]):active {
+    -moz-image-region: rect(36px 108px 72px 72px);
+  }
+}
+
+#statusTypeIcon[status="available"],
+#statusTypeAvailable,
+.statusTypeIcon[status="available"],
+#imStatusAvailable,
+#appmenu_imStatusAvailable,
+richlistitem[state="connected"] .accountStateIcon {
+  list-style-image: url("chrome://messenger/skin/icons/status.png");
+  -moz-image-region: rect(0px 16px 16px 0px);
+}
+
+#statusTypeIcon[status="idle"],
+.statusTypeIcon[status="idle"] {
+  list-style-image: url("chrome://messenger/skin/icons/status.png");
+  -moz-image-region: rect(0px 32px 16px 16px);
+}
+
+#statusTypeIcon[status="offline"],
+#statusTypeIcon[status="invisible"],
+#statusTypeOffline,
+.statusTypeIcon[status="offline"],
+.statusTypeIcon[status="invisible"],
+#imStatusOffline,
+#appmenu_imStatusOffline,
+richlistitem[state="disconnected"] .accountStateIcon {
+  list-style-image: url("chrome://messenger/skin/icons/status.png");
+  -moz-image-region: rect(0px 48px 16px 32px);
+}
+
+#statusTypeIcon[status="unavailable"],
+#statusTypeIcon[status="away"],
+#statusTypeUnavailable,
+.statusTypeIcon[status="unavailable"],
+.statusTypeIcon[status="away"],
+#imStatusUnavailable,
+#appmenu_imStatusUnavailable {
+  list-style-image: url("chrome://messenger/skin/icons/status.png");
+  -moz-image-region: rect(0px 64px 16px 48px);
+}
+
+@media (min-resolution: 2dppx) {
+  #statusTypeIcon[status="available"],
+  #statusTypeAvailable,
+  .statusTypeIcon[status="available"],
+  #imStatusAvailable,
+  #appmenu_imStatusAvailable,
+  richlistitem[state="connected"] .accountStateIcon {
+    list-style-image: url("chrome://messenger/skin/icons/status@2x.png");
+    -moz-image-region: rect(0px 32px 32px 0px);
+  }
+
+  #statusTypeIcon[status="idle"],
+  .statusTypeIcon[status="idle"] {
+    list-style-image: url("chrome://messenger/skin/icons/status@2x.png");
+    -moz-image-region: rect(0px 64px 32px 32px);
+  }
+
+  #statusTypeIcon[status="offline"],
+  #statusTypeIcon[status="invisible"],
+  #statusTypeOffline,
+  .statusTypeIcon[status="offline"],
+  .statusTypeIcon[status="invisible"],
+  #imStatusOffline,
+  #appmenu_imStatusOffline,
+  richlistitem[state="disconnected"] .accountStateIcon {
+    list-style-image: url("chrome://messenger/skin/icons/status@2x.png");
+    -moz-image-region: rect(0px 96px 32px 64px);
+  }
+
+  #statusTypeIcon[status="unavailable"],
+  #statusTypeIcon[status="away"],
+  #statusTypeUnavailable,
+  .statusTypeIcon[status="unavailable"],
+  .statusTypeIcon[status="away"],
+  #imStatusUnavailable,
+  #appmenu_imStatusUnavailable {
+    list-style-image: url("chrome://messenger/skin/icons/status@2x.png");
+    -moz-image-region: rect(0px 128px 32px 96px);
+  }
+
+  .prplIcon,
+  #statusTypeIcon .button-icon {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+:-moz-any(imconv, imcontact, imgroup)[selected] {
+  background: linear-gradient(#5ea3df 6%, #73b8ea 6%, #6cafe5 7%,
+                              #3984d2 95%, #3577c2 100%);
+  color: HighlightText;
+}
+
+:-moz-any(imconv, imcontact, imgroup)[selected]:-moz-system-metric(mac-graphite-theme) {
+  background: linear-gradient(#7b8b9e 6%, #93a3b4 6%, #8fa0b1 7%,
+                              #587088 95%, #536b84 100%);
+}
+
+:-moz-any(imconv, imcontact, imgroup)[selected]:-moz-window-inactive {
+  background: linear-gradient(#bbc5d7 6%, #c3cbe0 6%, #bdc6dd 7%,
+                              #9ca9c6 95%, #939fba 100%);
+}
+
+#displayNameAndstatusMessageStack #statusMessage {
+  margin: 32px 0 0;
+  min-height: 16px;
+}
+
+#displayNameAndstatusMessageStack #statusMessage[editing] {
+  margin: 29px 2px 0 -4px;
+}
+
+#displayNameAndstatusMessageStack #displayName[editing] {
+  margin-left: -4px;
+  margin-right: -2px;
+  margin-bottom: 18px;
+}
+
+@media (min-resolution: 2dppx) {
+  .closeConversationButton {
+    list-style-image: url("chrome://global/skin/icons/close@2x.png");
+    -moz-image-region: rect(0, 32px, 32px, 0);
+  }
+
+  .closeConversationButton:hover {
+    -moz-image-region: rect(0, 64px, 32px, 32px);
+  }
+
+  .closeConversationButton:hover:active {
+    -moz-image-region: rect(0, 96px, 32px, 64px);
+  }
+
+  .closeConversationButton > .button-image-icon {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.tabmail-tab[type="chat"],
+.alltabs-item[type="chat"] {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.png");
+  -moz-image-region: rect(1px, 395px, 17px, 379px);
+}
+
+@media (min-resolution: 2dppx) {
+  .tabmail-tab[type="chat"],
+  .alltabs-item[type="chat"] {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar@2x.png");
+    -moz-image-region: rect(0px 792px 36px 756px);
+  }
+}

@@ -1,0 +1,170 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://messenger/skin/shared/tabmail.css");
+
+/**
+ * Tabmail Tabs
+ */
+
+#navigation-toolbox:not(:-moz-lwtheme) {
+  -moz-appearance: menubar;
+}
+
+#tabs-toolbar {
+  -moz-appearance: none;
+  padding: 0;
+  background-image: linear-gradient(to top, hsla(0, 0%, 0%, .3) 1px,
+                                    transparent 1px);
+}
+
+#tabs-toolbar:not(:-moz-lwtheme) {
+  -moz-binding: url("chrome://global/content/bindings/toolbar.xml#toolbar-drag");
+}
+
+#tabpanelcontainer:-moz-lwtheme {
+  color: inherit;
+}
+
+.tabmail-arrowscrollbox {
+  margin-bottom: -1px;
+}
+
+tabpanels {
+  -moz-appearance: none;
+  background-color: transparent;
+}
+
+/**
+ * Tab
+ */
+
+.tabmail-tab {
+  list-style-image: url("moz-icon://stock/gtk-file?size=menu");
+}
+
+.tab-throbber {
+  list-style-image: url("chrome://messenger/skin/icons/loading.png") !important;
+  -moz-image-region: auto !important;
+}
+
+.tabmail-tab[type="glodaSearch"] {
+  list-style-image: url(moz-icon://stock/gtk-find?size=menu);
+}
+
+.tabmail-tab > .tab-stack > .tab-content > .tab-text {
+  /* tabmail-tab focus ring */
+  border: 1px dotted transparent;
+  margin: -1px !important; /* let the border not consume any space, like outline */
+}
+
+.tabmail-tab:not(:-moz-lwtheme) > .tab-stack > .tab-content > .tab-text,
+.tabmail-tab:not(:-moz-lwtheme) > .tab-stack > .tab-content >
+  .tab-close-button {
+  color: -moz-MenuBarText;
+  opacity: .6;
+}
+
+.tabmail-tab[selected]:not(:-moz-lwtheme) > .tab-stack > .tab-content > .tab-text,
+.tabmail-tab[selected]:not(:-moz-lwtheme) > .tab-stack > .tab-content >
+  .tab-close-button {
+  color: -moz-DialogText;
+  opacity: 1;
+}
+
+.tabmail-tab[selected]:focus > .tab-stack > .tab-content > .tab-text {
+  border: 1px dotted -moz-DialogText;
+}
+
+/* Tab drag and drop */
+.tab-drop-indicator {
+  list-style-image: url(tabs/dragIndicator.png);
+  margin-bottom: -11px;
+}
+
+/* In-tab close button */
+.tab-close-button {
+  -moz-margin-start: 6px;
+  -moz-padding-start: 0 !important;
+  -moz-padding-end: 0 !important;
+  position: relative;
+  z-index: 4;
+  border: none;
+  list-style-image: url(tabs/closeTab.svg);
+  -moz-image-region: auto;
+}
+
+.tab-close-button > .toolbarbutton-icon {
+  margin-top: 1px;
+}
+
+.tabmail-tab[selected] > .tab-stack > .tab-content > .tab-close-button {
+  /* Make this button focusable so clicking on it will not focus the tab while
+     it's getting closed. */
+  -moz-user-focus: normal;
+}
+
+/**
+ * Tab Scrollbox Arrow Buttons
+ */
+
+/* Tabstrip close button */
+.tabs-closebutton {
+  list-style-image: url("moz-icon://stock/gtk-close?size=menu");
+  border: none;
+  margin-bottom: 1px;
+}
+
+.tabmail-arrowscrollbox > .scrollbutton-up {
+  -moz-appearance: tab-scroll-arrow-back;
+  margin: 0px;
+}
+
+.tabmail-arrowscrollbox > .scrollbutton-down-stack > .scrollbutton-down {
+  -moz-appearance: tab-scroll-arrow-forward;
+  margin: 0px;
+}
+
+.tabs-alltabs-box-animate {
+  background-color: Highlight;
+  opacity: 0.0;
+}
+
+/* All tabs menupopup */
+.alltabs-item {
+  list-style-image: url("moz-icon://stock/gtk-file?size=menu");
+}
+
+.alltabs-item[selected] {
+  font-weight: bold;
+}
+
+.alltabs-item[busy] {
+  list-style-image: url("chrome://messenger/skin/icons/loading.png") !important;
+  -moz-image-region: auto !important;
+}
+
+.tabs-alltabs-button {
+  margin-bottom: 1px;
+}
+
+.tabs-alltabs-button > .toolbarbutton-menu-dropmarker {
+  -moz-appearance: none !important;
+  margin-bottom: -1px;
+  -moz-padding-start: 0 !important;
+  list-style-image: url("chrome://messenger/skin/icons/dropmarker.svg");
+}
+
+.tabs-alltabs-button:hover > .toolbarbutton-menu-dropmarker {
+  list-style-image: url("chrome://messenger/skin/icons/dropmarker-hover.svg");
+}
+
+.tabs-alltabs-button > .toolbarbutton-icon {
+  display: none;
+  -moz-margin-end: 0;
+}
+
+.alltabs-item > .menu-iconic-left {
+  visibility: visible !important;
+}
